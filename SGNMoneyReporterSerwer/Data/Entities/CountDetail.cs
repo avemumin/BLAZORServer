@@ -1,4 +1,7 @@
-﻿namespace SGNMoneyReporterSerwer.Data.Entities
+﻿using System;
+using System.Collections.Generic;
+
+namespace SGNMoneyReporterSerwer.Data.Entities
 {
     public partial class CountDetail
     {

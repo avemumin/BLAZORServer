@@ -1,20 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using SGNMoneyReporterSerwer.Data.Entities;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace SGNMoneyReporterSerwer.Data
+namespace SGNMoneyReporterSerwer.Data.Entities
 {
     public partial class BankContext : DbContext
     {
-        private readonly IConfiguration _config;
         public BankContext()
         {
         }
 
-        public BankContext(DbContextOptions<BankContext> options,IConfiguration config)
+        public BankContext(DbContextOptions<BankContext> options)
             : base(options)
         {
-            _config = config;
         }
 
         public virtual DbSet<Cashier> Cashier { get; set; }
@@ -28,11 +26,15 @@ namespace SGNMoneyReporterSerwer.Data
         public virtual DbSet<Mode> Mode { get; set; }
         public virtual DbSet<Parameter> Parameter { get; set; }
         public virtual DbSet<Quality> Quality { get; set; }
+        public virtual DbSet<RefreshToken> RefreshToken { get; set; }
         public virtual DbSet<User> User { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(_config.GetConnectionString("ConnectionDB"));
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer("Name=ConnectionDB");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -229,6 +231,32 @@ namespace SGNMoneyReporterSerwer.Data
                 entity.Property(e => e.QualityValue)
                     .IsRequired()
                     .HasMaxLength(16);
+            });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(e => e.TokenId);
+
+                entity.ToTable("RefreshToken", "Configuration");
+
+                entity.Property(e => e.TokenId).HasColumnName("token_id");
+
+                entity.Property(e => e.ExpiryDate)
+                    .HasColumnName("expiry_date")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Token)
+                    .IsRequired()
+                    .HasColumnName("token")
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.RefreshTokens)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK__RefreshTo__user___03F0984C");
             });
 
             modelBuilder.Entity<User>(entity =>
