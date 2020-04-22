@@ -10,10 +10,10 @@ namespace SGNMoneyReporterSerwer.Data.Entities
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
 
-        public UserWithToken()
-        {
+        //public UserWithToken()
+        //{
             
-        }
+        //}
         public UserWithToken(User user)
         {
             this.IdUser = user.IdUser;

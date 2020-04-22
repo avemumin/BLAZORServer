@@ -11,6 +11,7 @@ using SGNMoneyReporterSerwer.Models;
 
 namespace SGNMoneyReporterSerwer.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class QualitiesReportController : ControllerBase

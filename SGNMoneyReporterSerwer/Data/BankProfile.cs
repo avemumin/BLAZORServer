@@ -15,9 +15,7 @@ namespace SGNMoneyReporterSerwer.Data
             this.CreateMap<CurrencyFaceValue, CurrencyFaceValueModel>();
             this.CreateMap<QualitySP, QualitySPModel>();
             this.CreateMap<QualityWithMachineSP, QualitySPMachineModel>();
-           // this.CreateMap<User, UserModel>();
-           // this.CreateMap<UserWithToken, UserWithTokenModel>();
-            //this.CreateMap<RefreshToken, RefreshTokenModel>();
+           
         }
  
     }

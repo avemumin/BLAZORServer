@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -15,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace SGNMoneyReporterSerwer.Controllers
 {
-
+    
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -28,11 +29,14 @@ namespace SGNMoneyReporterSerwer.Controllers
             _jwtSettings = jwtSettings.Value;
         }
 
+
         [HttpGet("GetUsers")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.User.ToListAsync();
         }
+
+
         [HttpGet("GetUser/{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
@@ -45,6 +49,8 @@ namespace SGNMoneyReporterSerwer.Controllers
 
             return user;
         }
+
+
         [HttpGet("GetUserDetails/{id}")]
         public async Task<ActionResult<User>> GetUserDetails(int id)
         {
@@ -59,6 +65,8 @@ namespace SGNMoneyReporterSerwer.Controllers
 
             return user;
         }
+
+
         [HttpPost("Login")]
         public async Task<ActionResult<UserWithToken>> Login([FromBody] User user)
         {
@@ -88,6 +96,39 @@ namespace SGNMoneyReporterSerwer.Controllers
             return userWithToken;
         }
 
+
+        [HttpPost("RegisterUser")]
+        public async Task<ActionResult<UserWithToken>> RegisterUser([FromBody] User user)
+        {
+            _context.User.Add(user);
+            await _context.SaveChangesAsync();
+
+            //load role for registered user
+            user = await _context.User.Where(u => u.IdUser == user.IdUser).FirstOrDefaultAsync();
+
+            UserWithToken userWithToken = null;
+
+            if (user != null)
+            {
+                RefreshToken refreshToken = GenerateRefreshToken();
+                user.RefreshTokens.Add(refreshToken);
+                await _context.SaveChangesAsync();
+
+                userWithToken = new UserWithToken(user);
+                userWithToken.RefreshToken = refreshToken.Token;
+            }
+
+            if (userWithToken == null)
+            {
+                return NotFound();
+            }
+
+            
+            userWithToken.AccessToken = GenerateAccessToken(user.IdUser);
+            return userWithToken;
+        }
+
+
         [HttpPost("RefreshToken")]
         public async Task<ActionResult<UserWithToken>> RefreshToken([FromBody] RefreshRequest refreshRequest)
         {
@@ -104,6 +145,8 @@ namespace SGNMoneyReporterSerwer.Controllers
             return null;
         }
 
+
+
         [HttpPost("GetUserByAccessToken")]
         public async Task<ActionResult<User>> GetUserByAccessToken([FromBody] string accessToken)
         {
@@ -116,7 +159,6 @@ namespace SGNMoneyReporterSerwer.Controllers
 
             return null;
         }
-
 
         private bool ValidateRefreshToken(User user, string refreshToken)
         {
@@ -147,7 +189,8 @@ namespace SGNMoneyReporterSerwer.Controllers
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
-                    ValidateAudience = false
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
                 };
 
                 SecurityToken securityToken;
@@ -170,6 +213,8 @@ namespace SGNMoneyReporterSerwer.Controllers
 
             return new User();
         }
+
+
         private RefreshToken GenerateRefreshToken()
         {
             RefreshToken refreshToken = new RefreshToken();
@@ -180,10 +225,12 @@ namespace SGNMoneyReporterSerwer.Controllers
                 rng.GetBytes(randomNumber);
                 refreshToken.Token = Convert.ToBase64String(randomNumber);
             }
-            refreshToken.ExpiryDate = DateTime.Now.AddHours(1);
+            refreshToken.ExpiryDate = DateTime.Now.AddSeconds(15);
 
             return refreshToken;
         }
+
+
         private string GenerateAccessToken(int userId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -194,13 +241,92 @@ namespace SGNMoneyReporterSerwer.Controllers
                 {
                     new Claim(ClaimTypes.Name, Convert.ToString(userId))
                 }),
-                Expires = DateTime.Now.AddHours(4),
+                Expires = DateTime.Now.AddSeconds(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+
+        [HttpPut("UpdateUser/{id}")]
+        public async Task<IActionResult> PutUser(int id, User user)
+        {
+            if (id != user.IdUser)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(user).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!UserExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+
+
+        [HttpPost("CreateUser")]
+        public async Task<ActionResult<User>> PostUser(User user)
+        {
+            _context.User.Add(user);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetUser", new { id = user.IdUser }, user);
+        }
+
+
+
+
+        [HttpDelete("DeleteUser/{id}")]
+        public async Task<ActionResult<User>> DeleteUser(int id)
+        {
+            var user = await _context.User.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            _context.User.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return user;
+        }
+
+
+        
+
+        private bool UserExists(int id)
+        {
+            return _context.User.Any(e => e.IdUser == id);
+        }
+
+       
+      
+
+
+        
+
+       
+
+       
+
+        
+  
 
     }
 }
