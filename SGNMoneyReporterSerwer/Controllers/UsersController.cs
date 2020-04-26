@@ -168,7 +168,7 @@ namespace SGNMoneyReporterSerwer.Controllers
                 .FirstOrDefault();
 
             if (refreshTokenUser != null && refreshTokenUser.UserId == user.IdUser
-                                         && refreshTokenUser.ExpiryDate > DateTime.Now)
+                                         && refreshTokenUser.ExpiryDate > DateTime.UtcNow)
             {
                 return true;
             }
@@ -225,7 +225,7 @@ namespace SGNMoneyReporterSerwer.Controllers
                 rng.GetBytes(randomNumber);
                 refreshToken.Token = Convert.ToBase64String(randomNumber);
             }
-            refreshToken.ExpiryDate = DateTime.Now.AddSeconds(15);
+            refreshToken.ExpiryDate = DateTime.UtcNow.AddHours(1);
 
             return refreshToken;
         }
@@ -241,7 +241,7 @@ namespace SGNMoneyReporterSerwer.Controllers
                 {
                     new Claim(ClaimTypes.Name, Convert.ToString(userId))
                 }),
-                Expires = DateTime.Now.AddSeconds(7),
+                Expires = DateTime.UtcNow.AddHours(4),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
             };
@@ -315,18 +315,6 @@ namespace SGNMoneyReporterSerwer.Controllers
             return _context.User.Any(e => e.IdUser == id);
         }
 
-       
-      
-
-
-        
-
-       
-
-       
-
-        
-  
 
     }
 }
