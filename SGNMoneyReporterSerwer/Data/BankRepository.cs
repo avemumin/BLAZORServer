@@ -175,6 +175,13 @@ namespace SGNMoneyReporterSerwer.Data
             }
         }
 
+        public async Task<List<FileHistory>> GetAllFilesHistoryAsync()
+        {
+            IQueryable<FileHistory> query =  _context.FileHistory.Take(7);
+            query = query.OrderBy(x => x.IdFileHistory);
+            return await query.ToListAsync();
+        }
+
         private QualityWithMachineSP MapToValueMachine(SqlDataReader reader)
         {
             return new QualityWithMachineSP()

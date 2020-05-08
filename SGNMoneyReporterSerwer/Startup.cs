@@ -14,7 +14,7 @@ using SGNMoneyReporterSerwer.Data;
 using SGNMoneyReporterSerwer.Data.Entities;
 using SGNMoneyReporterSerwer.Handlers;
 using SGNMoneyReporterSerwer.Models;
-
+using Newtonsoft.Json;
 namespace SGNMoneyReporterSerwer
 {
     public class Startup
@@ -31,7 +31,9 @@ namespace SGNMoneyReporterSerwer
         {
             services.AddControllers();
             services.AddDbContext<BankContext>();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddMvc(o=> o.EnableEndpointRouting=false)
+                .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             var jwtSection = Configuration.GetSection("JWTSettings");
             services.Configure<JWTSettings>(jwtSection);

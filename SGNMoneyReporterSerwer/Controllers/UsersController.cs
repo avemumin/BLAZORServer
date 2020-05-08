@@ -29,7 +29,7 @@ namespace SGNMoneyReporterSerwer.Controllers
             _jwtSettings = jwtSettings.Value;
         }
 
-
+        
         [HttpGet("GetUsers")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
@@ -70,7 +70,7 @@ namespace SGNMoneyReporterSerwer.Controllers
         [HttpPost("Login")]
         public async Task<ActionResult<UserWithToken>> Login([FromBody] User user)
         {
-            user = await _context.User
+            user = await _context.User.Include(u=>u.Role)
                 .Where(u => u.UserEmailAddress == user.UserEmailAddress
                             && u.UserPassword == user.UserPassword).FirstOrDefaultAsync();
 
@@ -93,6 +93,14 @@ namespace SGNMoneyReporterSerwer.Controllers
 
 
             userWithToken.AccessToken = GenerateAccessToken(user.IdUser);
+
+            var settings = new Newtonsoft.Json.JsonSerializerSettings()
+            {
+                ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            };
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(userWithToken, Newtonsoft.Json.Formatting.Indented, settings);
+
+
             return userWithToken;
         }
 
@@ -168,7 +176,7 @@ namespace SGNMoneyReporterSerwer.Controllers
                 .FirstOrDefault();
 
             if (refreshTokenUser != null && refreshTokenUser.UserId == user.IdUser
-                                         && refreshTokenUser.ExpiryDate > DateTime.UtcNow)
+                                         && refreshTokenUser.ExpiryDate > DateTime.Now)
             {
                 return true;
             }
@@ -202,11 +210,11 @@ namespace SGNMoneyReporterSerwer.Controllers
                 {
                     var userId = principle.FindFirst(ClaimTypes.Name)?.Value;
 
-                    return await _context.User
+                    return await _context.User.Include(u => u.Role)
                         .Where(u => u.IdUser == Convert.ToInt32(userId)).FirstOrDefaultAsync();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return new User();
             }
@@ -225,7 +233,7 @@ namespace SGNMoneyReporterSerwer.Controllers
                 rng.GetBytes(randomNumber);
                 refreshToken.Token = Convert.ToBase64String(randomNumber);
             }
-            refreshToken.ExpiryDate = DateTime.UtcNow.AddHours(1);
+            refreshToken.ExpiryDate = DateTime.Now.AddHours(2);
 
             return refreshToken;
         }
@@ -241,7 +249,7 @@ namespace SGNMoneyReporterSerwer.Controllers
                 {
                     new Claim(ClaimTypes.Name, Convert.ToString(userId))
                 }),
-                Expires = DateTime.UtcNow.AddHours(4),
+                Expires = DateTime.Now.AddHours(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
             };

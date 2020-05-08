@@ -28,7 +28,7 @@ namespace SGNMoneyReporterSerwer.Data.Entities
         public virtual DbSet<Quality> Quality { get; set; }
         public virtual DbSet<RefreshToken> RefreshToken { get; set; }
         public virtual DbSet<User> User { get; set; }
-
+        public virtual DbSet<Role> Roles { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -256,7 +256,20 @@ namespace SGNMoneyReporterSerwer.Data.Entities
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.RefreshTokens)
                     .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK__RefreshTo__user___03F0984C");
+                    .HasConstraintName("FK__RefreshTo__user___4F7CD00D");
+            });
+
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("Role", "Configuration");
+
+                entity.Property(e => e.RoleId).HasColumnName("role_id");
+
+                entity.Property(e => e.RoleDescription)
+                    .IsRequired()
+                    .HasColumnName("role_description")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -267,17 +280,29 @@ namespace SGNMoneyReporterSerwer.Data.Entities
 
                 entity.Property(e => e.LastEditDate).HasColumnType("datetime");
 
-                entity.Property(e => e.UserEmailAddress).HasMaxLength(255);
+                entity.Property(e => e.UserEmailAddress)
+                    .IsRequired()
+                    .HasMaxLength(255);
 
                 entity.Property(e => e.UserLastName)
-                    .IsRequired()
                     .HasMaxLength(128);
 
                 entity.Property(e => e.UserName)
-                    .IsRequired()
                     .HasMaxLength(128);
 
-                entity.Property(e => e.UserPassword).HasMaxLength(255);
+                entity.Property(e => e.UserPassword)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.RoleId)
+               .HasColumnName("RoleId")
+               .HasDefaultValueSql("((1))");
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.Users)
+                    .HasForeignKey(d => d.RoleId)
+                    //.OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserRole");
             });
 
             OnModelCreatingPartial(modelBuilder);
