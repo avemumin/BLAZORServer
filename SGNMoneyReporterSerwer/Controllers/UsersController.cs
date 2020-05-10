@@ -112,7 +112,7 @@ namespace SGNMoneyReporterSerwer.Controllers
             await _context.SaveChangesAsync();
 
             //load role for registered user
-            user = await _context.User.Where(u => u.IdUser == user.IdUser).FirstOrDefaultAsync();
+            user = await _context.User.Include(u => u.Role).Where(u => u.IdUser == user.IdUser).FirstOrDefaultAsync();
 
             UserWithToken userWithToken = null;
 
@@ -233,7 +233,7 @@ namespace SGNMoneyReporterSerwer.Controllers
                 rng.GetBytes(randomNumber);
                 refreshToken.Token = Convert.ToBase64String(randomNumber);
             }
-            refreshToken.ExpiryDate = DateTime.Now.AddHours(2);
+            refreshToken.ExpiryDate = DateTime.Now.AddHours(1);
 
             return refreshToken;
         }
@@ -249,7 +249,7 @@ namespace SGNMoneyReporterSerwer.Controllers
                 {
                     new Claim(ClaimTypes.Name, Convert.ToString(userId))
                 }),
-                Expires = DateTime.Now.AddHours(2),
+                Expires = DateTime.Now.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
             };
