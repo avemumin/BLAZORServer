@@ -175,13 +175,6 @@ namespace SGNMoneyReporterSerwer.Data
             }
         }
 
-        public async Task<List<FileHistory>> GetAllFilesHistoryAsync()
-        {
-            IQueryable<FileHistory> query =  _context.FileHistory.Take(7);
-            query = query.OrderBy(x => x.IdFileHistory);
-            return await query.ToListAsync();
-        }
-
         private QualityWithMachineSP MapToValueMachine(SqlDataReader reader)
         {
             return new QualityWithMachineSP()
@@ -196,6 +189,54 @@ namespace SGNMoneyReporterSerwer.Data
                 Symbol = (string)reader["Symbol"],
                 ModeValue = (string)reader["ModeValue"]
             };
+        }
+
+        public async Task<List<SerialNumbersDuplicatesSP>> GetAllDuplicatesFiltered(string currency,  DateTime begin, DateTime end)
+        {
+            using (SqlConnection sql = new SqlConnection(_connection))
+            {
+                SqlCommand cmd = new SqlCommand("SerialNumberDuplicates", sql);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 0;
+                //cmd.Parameters.Add(new SqlParameter("@idMode", idMode));
+                //cmd.Parameters.Add(new SqlParameter("@idQuality", idQual));
+                cmd.Parameters.Add(new SqlParameter("@idCurrency ", currency));
+                cmd.Parameters.Add(new SqlParameter("@startDate ", begin));
+                cmd.Parameters.Add(new SqlParameter("@endDate ", end));
+                var response = new List<SerialNumbersDuplicatesSP>();
+                await sql.OpenAsync();
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        response.Add(MapToValueDuplicate(reader));
+                    }
+                }
+                cmd.CommandTimeout = 30;
+                return response;
+            }
+        }
+
+        private SerialNumbersDuplicatesSP MapToValueDuplicate(SqlDataReader reader)
+        {
+            return new SerialNumbersDuplicatesSP()
+            {
+                //IdMachine = (int)reader["IdMachine"],
+                SN = (string)reader["SN"],
+                Counts = (int)reader["Counts"],
+                BanknoteSN = (string)reader["BanknoteSN"],
+                IdCurrencyFaceValue = (short)reader["IdCurrencyFaceValue"],
+                IdCurrency = (short)reader["IdCurrency"],
+                Symbol = (string)reader["Symbol"],
+                FaceValue = (decimal)reader["FaceValue"]
+            };
+        }
+
+        public async Task<List<FileHistory>> GetAllFilesHistoryAsync()
+        {
+            IQueryable<FileHistory> query = _context.FileHistory.Take(7);
+            query = query.OrderBy(x => x.IdFileHistory);
+            return await query.ToListAsync();
         }
 
     }

@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace SGNMoneyReporterSerwer.Controllers
 {
-    
+
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -29,11 +29,12 @@ namespace SGNMoneyReporterSerwer.Controllers
             _jwtSettings = jwtSettings.Value;
         }
 
-        
+
         [HttpGet("GetUsers")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.User.ToListAsync();
+            return await _context.User.Include(u => u.Role)
+                .Where(r => r.Role.RoleId != 1).ToListAsync();
         }
 
 
@@ -70,7 +71,7 @@ namespace SGNMoneyReporterSerwer.Controllers
         [HttpPost("Login")]
         public async Task<ActionResult<UserWithToken>> Login([FromBody] User user)
         {
-            user = await _context.User.Include(u=>u.Role)
+            user = await _context.User.Include(u => u.Role)
                 .Where(u => u.UserEmailAddress == user.UserEmailAddress
                             && u.UserPassword == user.UserPassword).FirstOrDefaultAsync();
 
@@ -131,7 +132,7 @@ namespace SGNMoneyReporterSerwer.Controllers
                 return NotFound();
             }
 
-            
+
             userWithToken.AccessToken = GenerateAccessToken(user.IdUser);
             return userWithToken;
         }
@@ -233,7 +234,7 @@ namespace SGNMoneyReporterSerwer.Controllers
                 rng.GetBytes(randomNumber);
                 refreshToken.Token = Convert.ToBase64String(randomNumber);
             }
-            refreshToken.ExpiryDate = DateTime.Now.AddHours(1);
+            refreshToken.ExpiryDate = DateTime.Now.AddMinutes(20);
 
             return refreshToken;
         }
@@ -249,7 +250,7 @@ namespace SGNMoneyReporterSerwer.Controllers
                 {
                     new Claim(ClaimTypes.Name, Convert.ToString(userId))
                 }),
-                Expires = DateTime.Now.AddHours(1),
+                Expires = DateTime.Now.AddMinutes(30),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
             };
@@ -316,7 +317,7 @@ namespace SGNMoneyReporterSerwer.Controllers
         }
 
 
-        
+
 
         private bool UserExists(int id)
         {

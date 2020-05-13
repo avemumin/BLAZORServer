@@ -16,6 +16,7 @@ namespace SGNMoneyReporterSerwer.Data
             this.CreateMap<QualitySP, QualitySPModel>();
             this.CreateMap<QualityWithMachineSP, QualitySPMachineModel>();
             this.CreateMap<FileHistory, FileHistoryModel>();
+            this.CreateMap<SerialNumbersDuplicatesSP,DuplicatesSpModel>();
         }
  
     }

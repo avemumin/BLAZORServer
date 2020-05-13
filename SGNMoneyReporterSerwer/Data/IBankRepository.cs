@@ -25,6 +25,7 @@ namespace SGNMoneyReporterSerwer.Data
         Task<List<QualitySP>> GetFilteredValuesAsync(string quality, string currency, string mode, DateTime begin, DateTime end);
         Task<List<QualityWithMachineSP>> GetFilteredValuesExtAsync(string quality, string currency, string mode, DateTime begin, DateTime end);
 
+        Task<List<SerialNumbersDuplicatesSP>> GetAllDuplicatesFiltered(string currency, DateTime begin, DateTime end);
         Task<List<FileHistory>> GetAllFilesHistoryAsync();
 
     }
