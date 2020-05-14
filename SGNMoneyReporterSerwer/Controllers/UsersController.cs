@@ -34,7 +34,7 @@ namespace SGNMoneyReporterSerwer.Controllers
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.User.Include(u => u.Role)
-                .Where(r => r.Role.RoleId != 1).ToListAsync();
+                .Where(u=>u.RoleId!=1).ToListAsync();
         }
 
 
