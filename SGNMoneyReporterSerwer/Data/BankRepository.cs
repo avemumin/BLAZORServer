@@ -234,12 +234,18 @@ namespace SGNMoneyReporterSerwer.Data
 
         public async Task<List<FileHistory>> GetAllFilesHistoryAsync()
         {
-            IQueryable<FileHistory> query = _context.FileHistory
-                .Where(r=> !r.IsProceededSuccess)
-                .Take(30);
+            IQueryable<FileHistory> query = _context.FileHistory;
+               // .Where(r => !r.IsProceededSuccess);
+                //.Take(30);
             query = query.OrderBy(x => x.IdFileHistory);
             return await query.ToListAsync();
         }
 
+        public async Task<List<Role>> GetRoles()
+        {
+            IQueryable<Role> query = _context.Roles.Where(r=>r.RoleId>1);
+            query = query.OrderBy(x => x.RoleId);
+            return await query.ToListAsync();
+        }
     }
 }

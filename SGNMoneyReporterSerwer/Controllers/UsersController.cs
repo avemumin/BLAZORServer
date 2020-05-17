@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -33,15 +32,21 @@ namespace SGNMoneyReporterSerwer.Controllers
         [HttpGet("GetUsers")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.User.Include(u => u.Role)
-                .Where(u=>u.RoleId!=1).ToListAsync();
+            return await _context.User
+                .Include(u => u.Role)
+                .Where(u => u.RoleId != 1)
+                .OrderBy(u => u.IsActive).ThenBy(u => u.IdUser)
+                .ToListAsync();
         }
 
 
         [HttpGet("GetUser/{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
-            var user = await _context.User.FindAsync(id);
+            //var user = await _context.User.FindAsync(id);
+            var user = await _context.User.Include(u => u.Role)
+                .Where(x => x.IdUser == id)
+                .FirstOrDefaultAsync();// FindAsync(id);
 
             if (user == null)
             {

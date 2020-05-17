@@ -19,8 +19,9 @@ namespace SGNMoneyReporterSerwer.Data
         Task<List<Machine>> GetAllMachinesAsync();
 
         Task<List<Currency>> GetAllCurrenciesAsync();
-
         Task<List<CurrencyFaceValue>> GetAllFacesValuesAsync();
+        Task<List<Role>> GetRoles();
+
 
         Task<List<QualitySP>> GetFilteredValuesAsync(string quality, string currency, string mode, DateTime begin, DateTime end);
         Task<List<QualityWithMachineSP>> GetFilteredValuesExtAsync(string quality, string currency, string mode, DateTime begin, DateTime end);

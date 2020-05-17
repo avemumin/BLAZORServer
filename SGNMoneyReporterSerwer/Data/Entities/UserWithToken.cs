@@ -27,22 +27,6 @@ namespace SGNMoneyReporterSerwer.Data.Entities
             this.Role = user.Role;
         }
     }
-
-    public class UserWithToken2
-    {
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
-
-        public User User { get;  set; }
-        //public UserWithToken()
-        //{
-
-        //}
-        public UserWithToken2(User user)
-        {
-            this.User = user;
-        }
-    }
 }
 
 

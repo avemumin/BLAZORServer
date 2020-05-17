@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SGNMoneyReporterSerwer.Data;
 using SGNMoneyReporterSerwer.Data.Entities;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SGNMoneyReporterSerwer.Controllers
 {
