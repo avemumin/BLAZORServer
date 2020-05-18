@@ -234,8 +234,7 @@ namespace SGNMoneyReporterSerwer.Data
 
         public async Task<List<FileHistory>> GetAllFilesHistoryAsync()
         {
-            IQueryable<FileHistory> query = _context.FileHistory;
-               // .Where(r => !r.IsProceededSuccess);
+            IQueryable<FileHistory> query = _context.FileHistory.Where(r => !r.IsProceededSuccess);
                 //.Take(30);
             query = query.OrderBy(x => x.IdFileHistory);
             return await query.ToListAsync();
