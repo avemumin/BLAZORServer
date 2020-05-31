@@ -14,5 +14,6 @@ namespace SGNMoneyReporterSerwer.Data.Entities
         public string QualityValue { get; set; }
         public string Symbol { get; set; }
         public string ModeValue { get; set; }
+        public short IdCurrency { get; set; }
     }
 }

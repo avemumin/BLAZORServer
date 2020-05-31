@@ -138,7 +138,8 @@ namespace SGNMoneyReporterSerwer.Data
                 Count = (int)reader["Counts"],
                 QualityValue = (string)reader["QualityValue"],
                 Symbol = (string)reader["Symbol"],
-                ModeValue = (string)reader["ModeValue"]
+                ModeValue = (string)reader["ModeValue"],
+                IdCurrency = (short)reader["IdCurrency"]
             };
         }
         /// <summary>
