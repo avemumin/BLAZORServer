@@ -7,7 +7,7 @@ namespace SGNMoneyReporterSerwer.Models
 {
     public class QualitySPModel
     {
-    //    public short IdCurrencyFaceValue { get; set; }
+        public short IdCurrencyFaceValue { get; set; }
         public decimal FaceValue { get; set; }
     //    public long CountedCount { get; set; }
         public long Count { get; set; }

@@ -18,7 +18,7 @@ namespace SGNMoneyReporterSerwer.Controllers
         private readonly IMapper _mapper;
         public RolesController(IBankRepository repository, IMapper mapper)
         {
-            _repository = repository;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository)); ;
             _mapper = mapper;
         }
 

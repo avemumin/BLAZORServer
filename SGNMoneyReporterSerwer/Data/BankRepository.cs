@@ -132,7 +132,7 @@ namespace SGNMoneyReporterSerwer.Data
         {
             return new QualitySP()
             {
-                // IdCurrencyFaceValue = (short)reader["IdCurrencyFaceValue"],
+                IdCurrencyFaceValue = (short)reader["IdCurrencyFaceValue"],
                 FaceValue = (decimal)reader["FaceValue"],
                 //    CountedCount = (int)reader["CountedCount"],
                 Count = (int)reader["Counts"],
@@ -179,7 +179,7 @@ namespace SGNMoneyReporterSerwer.Data
         {
             return new QualityWithMachineSP()
             {
-                //   IdCurrencyFaceValue = (short)reader["IdCurrencyFaceValue"],
+                IdCurrencyFaceValue = (short)reader["IdCurrencyFaceValue"],
                 IdMachine = (int)reader["IdMachine"],
                 SN = (string)reader["SN"],
                 FaceValue = (decimal)reader["FaceValue"],
