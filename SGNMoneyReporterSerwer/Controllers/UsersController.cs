@@ -6,6 +6,7 @@ using SGNMoneyReporterSerwer.Data.Entities;
 using SGNMoneyReporterSerwer.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -114,8 +115,17 @@ namespace SGNMoneyReporterSerwer.Controllers
         [HttpPost("RegisterUser")]
         public async Task<ActionResult<UserWithToken>> RegisterUser([FromBody] User user)
         {
-            _context.User.Add(user);
-            await _context.SaveChangesAsync();
+            var duplicate = _context.User.Where(u => u.UserEmailAddress.Contains(user.UserEmailAddress));
+            if (duplicate.Count()==0)
+            {
+                _context.User.Add(user);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                //   throw new DuplicateNameException("Podany email występuje już w bazie skontaktuj się z administratorem");
+                return NotFound();
+            }
 
             //load role for registered user
             user = await _context.User.Include(u => u.Role).Where(u => u.IdUser == user.IdUser).FirstOrDefaultAsync();
