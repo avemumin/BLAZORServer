@@ -72,7 +72,7 @@ namespace SGNMoneyReporterSerwer.Controllers
 
             return user;
         }
-
+         
 
         [HttpPost("Login")]
         public async Task<ActionResult<UserWithToken>> Login([FromBody] User user)
