@@ -101,11 +101,11 @@ namespace SGNMoneyReporterSerwer.Controllers
 
             userWithToken.AccessToken = GenerateAccessToken(user.IdUser);
 
-            var settings = new Newtonsoft.Json.JsonSerializerSettings()
-            {
-                ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-            };
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(userWithToken, Newtonsoft.Json.Formatting.Indented, settings);
+            //var settings = new Newtonsoft.Json.JsonSerializerSettings()
+            //{
+            //    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            //};
+            //var json = Newtonsoft.Json.JsonConvert.SerializeObject(userWithToken, Newtonsoft.Json.Formatting.Indented, settings);
 
 
             return userWithToken;
@@ -116,14 +116,13 @@ namespace SGNMoneyReporterSerwer.Controllers
         public async Task<ActionResult<UserWithToken>> RegisterUser([FromBody] User user)
         {
             var duplicate = _context.User.Where(u => u.UserEmailAddress.Contains(user.UserEmailAddress));
-            if (duplicate.Count()==0)
+            if (!duplicate.Any())
             {
                 _context.User.Add(user);
                 await _context.SaveChangesAsync();
             }
             else
             {
-                //   throw new DuplicateNameException("Podany email występuje już w bazie skontaktuj się z administratorem");
                 return NotFound();
             }
 
